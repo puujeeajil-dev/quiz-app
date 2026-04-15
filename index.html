@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Алтан Хонх — Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--primary:#f59e0b;--pd:#d97706;--dark:#1e1b4b;--success:#10b981;--danger:#ef4444;--bg:#0f0c29;--card:#1a1740;--text:#fff;--muted:#94a3b8;--border:#2d2a5e;}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+/* AUTH */
+#authScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);}
+.auth-box{background:rgba(255,255,255,.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:40px;width:380px;text-align:center;}
+.auth-box .logo{font-size:50px;margin-bottom:12px;}
+.auth-box h2{color:var(--primary);font-size:24px;margin-bottom:6px;}
+.auth-box p{color:var(--muted);font-size:13px;margin-bottom:28px;}
+.fg{margin-bottom:14px;text-align:left;}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;}
+.fg input{width:100%;padding:11px 14px;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:9px;font-size:14px;color:#fff;outline:none;transition:.2s;}
+.fg input:focus{border-color:var(--primary);}
+.btn-gold{width:100%;padding:13px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;}
+.btn-gold:hover{opacity:.9;}
+.err{color:#ef4444;font-size:12px;text-align:center;margin-top:8px;}
+/* LAYOUT */
+#app{display:none;padding:20px;}
+.header{background:linear-gradient(135deg,var(--card),#2d2a5e);border-radius:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;border:1px solid var(--border);}
+.header h1{font-size:18px;color:var(--primary);}
+.bgroup{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--card);padding:4px;border-radius:10px;width:fit-content;border:1px solid var(--border);}
+.tab{padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);transition:.15s;}
+.tab.active{background:var(--primary);color:#000;}
+.page{display:none;}
+.page.active{display:block;}
+/* CARDS */
+.card{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:16px;}
+.ch{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;color:var(--primary);}
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
+.sc{background:var(--card);border-radius:12px;padding:16px;border:1px solid var(--border);text-align:center;}
+.sc .val{font-size:28px;font-weight:700;color:var(--primary);}
+.sc .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+/* FORM */
+.form-section{background:var(--card);border-radius:14px;padding:20px;border:1px solid var(--border);margin-bottom:16px;}
+.form-section h3{color:var(--primary);font-size:15px;margin-bottom:16px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg2{margin-bottom:14px;}
+.fg2 label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;}
+.fg2 input,.fg2 select,.fg2 textarea{width:100%;padding:10px 13px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;font-size:14px;color:#fff;outline:none;font-family:inherit;}
+.fg2 input:focus,.fg2 select:focus,.fg2 textarea:focus{border-color:var(--primary);}
+.fg2 textarea{resize:vertical;min-height:70px;}
+.option-row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin-bottom:10px;}
+.opt-label{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+.opt-a{background:#ef4444;}
+.opt-b{background:#3b82f6;}
+.opt-c{background:#10b981;}
+.opt-d{background:#f59e0b;color:#000;}
+/* BUTTONS */
+.bs{padding:6px 12px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;}
+.b-gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;}
+.b-suc{background:#10b981;color:#fff;}
+.b-dan{background:#ef4444;color:#fff;}
+.b-inf{background:#3b82f6;color:#fff;}
+.b-gry{background:#475569;color:#fff;}
+.b-add{padding:10px 18px;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;}
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th{background:rgba(255,255,255,.05);padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:13px;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.03);}
+/* GAME STATUS */
+.game-status{background:linear-gradient(135deg,#1a1740,#2d2a5e);border-radius:14px;padding:20px;border:1px solid var(--primary);margin-bottom:16px;}
+.game-status h3{color:var(--primary);font-size:16px;margin-bottom:12px;}
+.pin-display{font-size:42px;font-weight:700;color:var(--primary);letter-spacing:8px;text-align:center;padding:16px;background:rgba(245,158,11,.1);border-radius:10px;margin-bottom:12px;}
+.pin-label{text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px;}
+.player-list{display:flex;flex-wrap:wrap;gap:8px;}
+.player-chip{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:5px 12px;font-size:13px;color:var(--primary);}
+/* BADGE */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.bg-gold{background:rgba(245,158,11,.2);color:#f59e0b;}
+.bg-gr{background:rgba(16,185,129,.2);color:#10b981;}
+.bg-rd{background:rgba(239,68,68,.2);color:#ef4444;}
+.bg-bl{background:rgba(59,130,246,.2);color:#60a5fa;}
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;}
+.mo.open{display:flex;}
+.mbox{background:#1a1740;border-radius:14px;padding:24px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;border:1px solid var(--border);}
+.mbox h3{color:var(--primary);font-size:16px;font-weight:700;margin-bottom:16px;}
+.mbtns{display:flex;gap:8px;margin-top:16px;}
+.mbtns button{flex:1;}
+.bcancel{background:#334155;color:#fff;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.correct-select{display:flex;gap:8px;margin-top:6px;}
+.correct-btn{flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;background:transparent;color:#fff;transition:.15s;}
+.correct-btn.selected{border-color:var(--primary);background:rgba(245,158,11,.15);color:var(--primary);}
+.empty{text-align:center;padding:30px;color:var(--muted);}
+.lbtn{padding:7px 12px;background:rgba(255,255,255,.1);border:1px solid var(--border);color:#fff;border-radius:6px;cursor:pointer;font-size:12px;}
+.lbtn:hover{background:rgba(255,255,255,.2);}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="logo">🔔</div>
+    <h2>Алтан Хонх</h2>
+    <p>Тэмцээний удирдлагын систем</p>
+    <div class="fg"><label>Нэвтрэх нэр</label><input id="aUser" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="fg"><label>Нууц үг</label><input type="password" id="aPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-gold" onclick="doLogin()">Нэвтрэх →</button>
+    <div class="err" id="aErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <h1>🔔 Алтан Хонх — Admin</h1>
+    <div class="bgroup">
+      <a href="screen.html" target="_blank"><button class="bs b-inf">🖥️ Дэлгэц</button></a>
+      <button class="bs b-gry" onclick="doLogout()">🚪 Гарах</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('dashboard',this)">📊 Самбар</div>
+    <div class="tab" onclick="showTab('questions',this)">❓ Асуултууд</div>
+    <div class="tab" onclick="showTab('game',this)">🎮 Тэмцээн</div>
+    <div class="tab" onclick="showTab('results',this)">🏆 Үр дүн</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="tab-dashboard">
+    <div class="sg" id="dashStats"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="card">
+        <div class="ch">❓ Асуултууд</div>
+        <div style="padding:14px;" id="dashQuestions"></div>
+      </div>
+      <div class="card">
+        <div class="ch">🎮 Тэмцээний төлөв</div>
+        <div style="padding:14px;" id="dashGame"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="page" id="tab-questions">
+    <div class="form-section">
+      <h3>➕ Шинэ асуулт нэмэх</h3>
+      <div class="fg2"><label>Асуулт *</label><textarea id="qText" placeholder="Асуултаа энд бичнэ үү..."></textarea></div>
+      <div class="fr">
+        <div class="fg2"><label>Хугацаа (секунд)</label>
+          <select id="qTime">
+            <option value="10">10 секунд</option>
+            <option value="20" selected>20 секунд</option>
+            <option value="30">30 секунд</option>
+            <option value="60">60 секунд</option>
+          </select>
+        </div>
+        <div class="fg2"><label>Оноо</label>
+          <select id="qPoints">
+            <option value="100">100 оноо</option>
+            <option value="200" selected>200 оноо</option>
+            <option value="300">300 оноо</option>
+            <option value="500">500 оноо</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:10px;">Хариултууд *</label>
+        <div class="option-row"><div class="opt-label opt-a">A</div><input class="fg2" style="margin:0;padding:9px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#fff;" id="optA" placeholder="A хариулт..."></div>
+        <div class="option-row"><div class="opt-label opt-b">B</div><input class="fg2" style="margin:0;padding:9px 12px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;color:#fff;" id="optB" placeholder="B хариулт..."></div>
+        <div class="option-row"><div class="opt-label opt-c">C</div><input class="fg2" style="margin:0;padding:9px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;color:#fff;" id="optC" placeholder="C хариулт..."></div>
+        <div class="option-row"><div class="opt-label opt-d">D</div><input class="fg2" style="margin:0;padding:9px 12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;color:#000;" id="optD" placeholder="D хариулт..."></div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px;">Зөв хариулт *</label>
+        <div class="correct-select">
+          <button class="correct-btn" id="cA" onclick="selectCorrect('A')">A</button>
+          <button class="correct-btn" id="cB" onclick="selectCorrect('B')">B</button>
+          <button class="correct-btn" id="cC" onclick="selectCorrect('C')">C</button>
+          <button class="correct-btn" id="cD" onclick="selectCorrect('D')">D</button>
+        </div>
+      </div>
+      <div id="qErr" style="color:#ef4444;font-size:12px;margin-bottom:10px;"></div>
+      <button class="b-add" onclick="addQuestion()">➕ Асуулт нэмэх</button>
+    </div>
+
+    <div class="card">
+      <div class="ch">
+        <span>❓ Асуултын жагсаалт</span>
+        <button class="bs b-dan" onclick="if(confirm('Бүх асуулт устгах уу?')){DB.questions=[];saveDB();renderQuestions();}">🗑️ Бүгдийг устгах</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table><thead><tr><th>#</th><th>Асуулт</th><th>Хугацаа</th><th>Оноо</th><th>Зөв хариулт</th><th>Үйлдэл</th></tr></thead>
+        <tbody id="questionsTbl"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="page" id="tab-game">
+    <div class="game-status" id="gameStatus">
+      <h3>🎮 Тэмцээний удирдлага</h3>
+      <div id="gameControls"></div>
+    </div>
+    <div class="card" id="playersCard" style="display:none;">
+      <div class="ch">👥 Оролцогчид <span id="playerCount" class="badge bg-gold">0</span></div>
+      <div style="padding:14px;" id="playersList"></div>
+    </div>
+    <div class="card" id="currentQCard" style="display:none;">
+      <div class="ch">📝 Одоогийн асуулт</div>
+      <div style="padding:14px;" id="currentQInfo"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="page" id="tab-results">
+    <div class="card">
+      <div class="ch">
+        <span>🏆 Онооны самбар</span>
+        <button class="bs b-dan" onclick="clearResults()">🗑️ Цэвэрлэх</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table><thead><tr><th>Байр</th><th>Оролцогч</th><th>Баг</th><th>Оноо</th><th>Зөв хариулт</th></tr></thead>
+        <tbody id="resultsTbl"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DB =====
+var DB={
+  questions:[],
+  game:{status:'idle',currentQ:-1,pin:'',players:[],answers:{}},
+  results:[]
+};
+var correctAnswer='';
+var gameTimer=null;
+
+function loadDB(){var d=localStorage.getItem('altankhonkh');if(d)DB=JSON.parse(d);}
+function saveDB(){localStorage.setItem('altankhonkh',JSON.stringify(DB));}
+loadDB();
+
+// ===== AUTH =====
+var ADMIN='admin',APASS='admin123';
+function doLogin(){
+  var u=document.getElementById('aUser').value.trim();
+  var p=document.getElementById('aPass').value;
+  if(u===ADMIN&&p===APASS){
+    sessionStorage.setItem('ak_admin','1');
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  }else{
+    document.getElementById('aErr').textContent='Нэвтрэх нэр эсвэл нууц үг буруу!';
+  }
+}
+function doLogout(){
+  sessionStorage.removeItem('ak_admin');
+  document.getElementById('app').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
+}
+if(sessionStorage.getItem('ak_admin')==='1'){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
+}
+
+function initApp(){
+  renderDash();
+  renderQuestions();
+  renderGame();
+  renderResults();
+  // Auto refresh
+  setInterval(function(){
+    loadDB();
+    if(document.getElementById('tab-game').classList.contains('active'))renderGame();
+    renderDash();
+  },2000);
+}
+
+// ===== TABS =====
+function showTab(id,el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  var map={dashboard:renderDash,questions:renderQuestions,game:renderGame,results:renderResults};
+  if(map[id])map[id]();
+}
+
+// ===== DASHBOARD =====
+function renderDash(){
+  var qCount=DB.questions.length;
+  var pCount=DB.game.players.length;
+  var rCount=DB.results.length;
+  var status={idle:'Хүлээж байна',waiting:'Тоглогч хүлээж байна',playing:'Тэмцээн явагдаж байна',finished:'Дууссан'};
+  document.getElementById('dashStats').innerHTML=
+    '<div class="sc"><div class="val">'+qCount+'</div><div class="lbl">Асуулт</div></div>'+
+    '<div class="sc"><div class="val">'+pCount+'</div><div class="lbl">Оролцогч</div></div>'+
+    '<div class="sc"><div class="val">'+(DB.game.currentQ>=0?DB.game.currentQ+1:0)+'/'+qCount+'</div><div class="lbl">Явц</div></div>'+
+    '<div class="sc"><div class="val" style="font-size:14px;">'+( status[DB.game.status]||'-')+'</div><div class="lbl">Төлөв</div></div>';
+
+  document.getElementById('dashQuestions').innerHTML=DB.questions.length?
+    DB.questions.slice(0,5).map(function(q,i){return '<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--primary);font-weight:700;">'+(i+1)+'.</span> '+q.text.substr(0,50)+(q.text.length>50?'...':'')+'</div>';}).join('')+
+    (DB.questions.length>5?'<div style="text-align:center;padding:8px;color:var(--muted);font-size:12px;">+ '+(DB.questions.length-5)+' асуулт</div>':''):
+    '<div class="empty">Асуулт байхгүй</div>';
+
+  document.getElementById('dashGame').innerHTML=
+    '<div style="margin-bottom:10px;"><span style="color:var(--muted);">Төлөв:</span> <span class="badge '+(DB.game.status==='playing'?'bg-gr':DB.game.status==='waiting'?'bg-gold':'bg-rd')+'">'+( status[DB.game.status]||'Хүлээж байна')+'</span></div>'+
+    (DB.game.pin?'<div style="font-size:24px;font-weight:700;color:var(--primary);letter-spacing:6px;margin-bottom:8px;">PIN: '+DB.game.pin+'</div>':'')+
+    '<div style="color:var(--muted);font-size:13px;">Оролцогч: <strong style="color:#fff;">'+DB.game.players.length+'</strong></div>';
+}
+
+// ===== QUESTIONS =====
+var selectedCorrect='';
+function selectCorrect(opt){
+  selectedCorrect=opt;
+  ['A','B','C','D'].forEach(function(o){
+    document.getElementById('c'+o).classList.toggle('selected',o===opt);
+  });
+}
+
+function addQuestion(){
+  var text=document.getElementById('qText').value.trim();
+  var a=document.getElementById('optA').value.trim();
+  var b=document.getElementById('optB').value.trim();
+  var c=document.getElementById('optC').value.trim();
+  var d=document.getElementById('optD').value.trim();
+  var errEl=document.getElementById('qErr');
+  if(!text){errEl.textContent='Асуулт оруулна уу!';return;}
+  if(!a||!b||!c||!d){errEl.textContent='Бүх хариултыг оруулна уу!';return;}
+  if(!selectedCorrect){errEl.textContent='Зөв хариултыг сонгоно уу!';return;}
+  errEl.textContent='';
+
+  DB.questions.push({
+    id:Date.now().toString(36),
+    text:text,
+    options:{A:a,B:b,C:c,D:d},
+    correct:selectedCorrect,
+    time:+document.getElementById('qTime').value,
+    points:+document.getElementById('qPoints').value
+  });
+  saveDB();
+
+  // Clear form
+  ['qText','optA','optB','optC','optD'].forEach(function(id){document.getElementById(id).value='';});
+  selectedCorrect='';
+  ['A','B','C','D'].forEach(function(o){document.getElementById('c'+o).classList.remove('selected');});
+  renderQuestions();renderDash();
+}
+
+function renderQuestions(){
+  var tbl=document.getElementById('questionsTbl');
+  tbl.innerHTML=DB.questions.length?
+    DB.questions.map(function(q,i){
+      return '<tr>'+
+        '<td><strong style="color:var(--primary);">'+(i+1)+'</strong></td>'+
+        '<td>'+q.text.substr(0,60)+(q.text.length>60?'...':'')+'</td>'+
+        '<td><span class="badge bg-bl">'+q.time+'с</span></td>'+
+        '<td><span class="badge bg-gold">'+q.points+'</span></td>'+
+        '<td><span class="badge '+(q.correct==='A'?'bg-rd':q.correct==='B'?'bg-bl':q.correct==='C'?'bg-gr':'bg-gold')+'">'+q.correct+'</span></td>'+
+        '<td><button class="bs b-dan" onclick="deleteQ(\''+q.id+'\')">🗑️</button></td>'+
+      '</tr>';
+    }).join(''):
+    '<tr><td colspan="6" class="empty">Асуулт байхгүй — дээрээс нэмнэ үү</td></tr>';
+}
+
+function deleteQ(id){
+  if(!confirm('Устгах уу?'))return;
+  DB.questions=DB.questions.filter(function(q){return q.id!==id;});
+  saveDB();renderQuestions();renderDash();
+}
+
+// ===== GAME =====
+function genPIN(){return Math.floor(1000+Math.random()*9000).toString();}
+
+function renderGame(){
+  var gc=document.getElementById('gameControls');
+  var pc=document.getElementById('playersCard');
+  var qc=document.getElementById('currentQCard');
+
+  if(DB.game.status==='idle'){
+    gc.innerHTML=
+      '<div style="text-align:center;padding:10px 0;">'+
+      '<div style="color:var(--muted);margin-bottom:16px;font-size:13px;">Тэмцээн эхлүүлэхийн тулд "Тоглогч хүлээх" товч дарна уу</div>'+
+      '<button class="b-add" onclick="startWaiting()" '+(DB.questions.length===0?'disabled style="opacity:.5"':'')+'>🟢 Тоглогч хүлээх</button>'+
+      (DB.questions.length===0?'<div style="color:#ef4444;font-size:12px;margin-top:8px;">Эхлээд асуулт нэмнэ үү!</div>':'')+'</div>';
+    pc.style.display='none';qc.style.display='none';
+
+  }else if(DB.game.status==='waiting'){
+    gc.innerHTML=
+      '<div class="pin-display">'+DB.game.pin+'</div>'+
+      '<div class="pin-label">Оролцогчид энэ PIN кодыг оруулж нэвтэрнэ<br><strong style="color:var(--primary);">'+window.location.origin+'/play.html</strong></div>'+
+      '<div style="display:flex;gap:10px;justify-content:center;">'+
+      '<button class="b-add" onclick="startGame()" '+(DB.game.players.length===0?'disabled style="opacity:.5"':'')+'>▶️ Тэмцээн эхлүүлэх</button>'+
+      '<button class="bs b-dan" onclick="resetGame()">⏹️ Цуцлах</button></div>';
+    pc.style.display='block';qc.style.display='none';
+    renderPlayers();
+
+  }else if(DB.game.status==='playing'){
+    var q=DB.questions[DB.game.currentQ];
+    var answered=Object.keys(DB.game.answers[DB.game.currentQ]||{}).length;
+    gc.innerHTML=
+      '<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">'+
+      '<div style="flex:1;"><div style="color:var(--muted);font-size:12px;">Асуулт</div><div style="font-size:18px;font-weight:700;color:var(--primary);">'+(DB.game.currentQ+1)+' / '+DB.questions.length+'</div></div>'+
+      '<div style="text-align:center;"><div style="color:var(--muted);font-size:12px;">Хариулсан</div><div style="font-size:18px;font-weight:700;">'+answered+'/'+DB.game.players.length+'</div></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:10px;">'+
+      (DB.game.currentQ<DB.questions.length-1?'<button class="b-add" onclick="nextQuestion()">⏭️ Дараагийн асуулт</button>':'<button class="b-add" onclick="finishGame()">🏁 Тэмцээн дуусгах</button>')+
+      '<button class="bs b-inf" onclick="showAnswer()">✅ Хариулт харуулах</button>'+
+      '</div>';
+    pc.style.display='block';qc.style.display='block';
+    renderPlayers();
+    if(q){
+      document.getElementById('currentQInfo').innerHTML=
+        '<div style="font-size:15px;font-weight:600;margin-bottom:12px;">'+q.text+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+        ['A','B','C','D'].map(function(o){return '<div style="padding:8px 12px;border-radius:8px;border:1px solid '+(o===q.correct?'#10b981':'var(--border)')+';background:'+(o===q.correct?'rgba(16,185,129,.15)':'rgba(255,255,255,.04)')+';font-size:13px;"><strong style="color:'+(o==='A'?'#ef4444':o==='B'?'#3b82f6':o==='C'?'#10b981':'#f59e0b')+'">'+o+'.</strong> '+q.options[o]+'</div>';}).join('')+
+        '</div>';
+    }
+
+  }else if(DB.game.status==='finished'){
+    gc.innerHTML=
+      '<div style="text-align:center;padding:10px 0;">'+
+      '<div style="font-size:40px;margin-bottom:12px;">🏆</div>'+
+      '<div style="font-size:18px;font-weight:700;color:var(--primary);margin-bottom:8px;">Тэмцээн дууслаа!</div>'+
+      '<div style="color:var(--muted);margin-bottom:16px;">Нийт '+DB.game.players.length+' оролцогч тэмцсэн</div>'+
+      '<div style="display:flex;gap:10px;justify-content:center;">'+
+      '<button class="b-add" onclick="showTab(\'results\',document.querySelectorAll(\'.tab\')[3])">🏆 Үр дүн харах</button>'+
+      '<button class="bs b-dan" onclick="resetGame()">🔄 Дахин эхлэх</button>'+
+      '</div></div>';
+    pc.style.display='none';qc.style.display='none';
+  }
+}
+
+function renderPlayers(){
+  var list=document.getElementById('playersList');
+  var count=document.getElementById('playerCount');
+  count.textContent=DB.game.players.length;
+  list.innerHTML=DB.game.players.length?
+    '<div class="player-list">'+DB.game.players.map(function(p){return '<div class="player-chip">'+p.name+(p.team?' ('+p.team+')':'')+'</div>';}).join('')+'</div>':
+    '<div class="empty">Оролцогч хүлээж байна...</div>';
+}
+
+function startWaiting(){
+  DB.game={status:'waiting',currentQ:-1,pin:genPIN(),players:[],answers:{}};
+  saveDB();renderGame();renderDash();
+}
+
+function startGame(){
+  if(DB.game.players.length===0){alert('Оролцогч байхгүй байна!');return;}
+  DB.game.status='playing';
+  DB.game.currentQ=0;
+  DB.game.answers={};
+  saveDB();renderGame();
+}
+
+function nextQuestion(){
+  if(DB.game.currentQ<DB.questions.length-1){
+    DB.game.currentQ++;
+    saveDB();renderGame();
+  }
+}
+
+function showAnswer(){
+  var q=DB.questions[DB.game.currentQ];
+  if(!q)return;
+  // Calculate scores
+  var answers=DB.game.answers[DB.game.currentQ]||{};
+  DB.game.players.forEach(function(p){
+    if(answers[p.id]&&answers[p.id].answer===q.correct){
+      p.score=(p.score||0)+q.points;
+    }
+  });
+  saveDB();renderGame();renderResults();
+}
+
+function finishGame(){
+  DB.game.status='finished';
+  // Save to results
+  DB.results=DB.game.players.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  saveDB();renderGame();renderResults();
+}
+
+function resetGame(){
+  DB.game={status:'idle',currentQ:-1,pin:'',players:[],answers:{}};
+  saveDB();renderGame();renderDash();
+}
+
+// ===== RESULTS =====
+function renderResults(){
+  var tbl=document.getElementById('resultsTbl');
+  var sorted=DB.results.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  tbl.innerHTML=sorted.length?
+    sorted.map(function(p,i){
+      var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      var correct=0;
+      var total=DB.questions.length;
+      Object.keys(DB.game.answers||{}).forEach(function(qi){
+        var ans=DB.game.answers[qi];
+        if(ans&&ans[p.id]&&DB.questions[qi]&&ans[p.id].answer===DB.questions[qi].correct)correct++;
+      });
+      return '<tr>'+
+        '<td><strong style="color:var(--primary);">'+(i+1)+' '+medal+'</strong></td>'+
+        '<td><strong>'+p.name+'</strong></td>'+
+        '<td>'+(p.team||'-')+'</td>'+
+        '<td><strong style="color:var(--primary);font-size:16px;">'+(p.score||0)+'</strong></td>'+
+        '<td>'+correct+'/'+total+'</td>'+
+      '</tr>';
+    }).join(''):
+    '<tr><td colspan="5" class="empty">Үр дүн байхгүй</td></tr>';
+}
+
+function clearResults(){
+  if(!confirm('Үр дүнг устгах уу?'))return;
+  DB.results=[];saveDB();renderResults();
+}
+</script>
+</body>
+</html>
