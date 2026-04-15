@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Алтан Хонх — Тоглох</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--primary:#f59e0b;--bg:#0f0c29;--card:#1a1740;--border:#2d2a5e;--muted:#94a3b8;}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.screen{display:none;width:100%;max-width:480px;padding:20px;}
+.screen.active{display:block;}
+
+/* JOIN */
+#sJoin{text-align:center;}
+.logo{font-size:60px;margin-bottom:12px;}
+h1{color:var(--primary);font-size:26px;margin-bottom:6px;}
+.sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+.fg{margin-bottom:16px;text-align:left;}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;}
+.fg input{width:100%;padding:14px 16px;background:rgba(255,255,255,.08);border:2px solid var(--border);border-radius:12px;font-size:18px;color:#fff;outline:none;text-align:center;letter-spacing:2px;}
+.fg input:focus{border-color:var(--primary);}
+.btn-gold{width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;margin-bottom:10px;}
+.btn-gold:hover{opacity:.9;}
+.btn-gold:disabled{opacity:.5;cursor:not-allowed;}
+.err{color:#ef4444;font-size:13px;text-align:center;margin-top:8px;min-height:20px;}
+
+/* WAITING */
+#sWaiting{text-align:center;}
+.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;}
+.player-name{font-size:22px;font-weight:700;color:var(--primary);margin-bottom:6px;}
+.player-team{font-size:15px;color:var(--muted);margin-bottom:24px;}
+.waiting-anim{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--primary);animation:dotBounce 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes dotBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.waiting-text{color:var(--muted);font-size:14px;}
+.players-count{margin-top:16px;font-size:28px;font-weight:700;color:var(--primary);}
+.players-label{color:var(--muted);font-size:13px;}
+
+/* QUESTION */
+#sQuestion{text-align:center;}
+.q-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:10px 14px;background:rgba(255,255,255,.06);border-radius:10px;}
+.q-num{font-size:13px;color:var(--muted);}
+.q-timer-sm{width:44px;height:44px;border-radius:50%;border:3px solid var(--primary);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--primary);}
+.q-timer-sm.warn{border-color:#ef4444;color:#ef4444;}
+.q-pts{font-size:13px;color:var(--primary);font-weight:700;}
+.q-text-sm{font-size:18px;font-weight:600;line-height:1.5;margin-bottom:24px;padding:16px;background:rgba(255,255,255,.06);border-radius:12px;}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.opt-btn{padding:18px 12px;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.opt-btn:active{transform:scale(.96);}
+.opt-btn.a{background:#ef4444;color:#fff;}
+.opt-btn.b{background:#3b82f6;color:#fff;}
+.opt-btn.c{background:#10b981;color:#fff;}
+.opt-btn.d{background:#f59e0b;color:#000;}
+.opt-btn:disabled{opacity:.6;cursor:not-allowed;}
+.opt-btn.selected{opacity:1;box-shadow:0 0 0 4px #fff;}
+.opt-btn.correct{box-shadow:0 0 20px rgba(16,185,129,.8);}
+.opt-btn.wrong{opacity:.4;}
+.opt-letter{font-size:20px;font-weight:700;}
+.opt-text{font-size:13px;font-weight:600;}
+.answered-msg{margin-top:20px;padding:14px;border-radius:12px;font-size:15px;font-weight:700;text-align:center;}
+.answered-msg.ok{background:rgba(16,185,129,.2);border:2px solid #10b981;color:#10b981;}
+.answered-msg.wait{background:rgba(245,158,11,.1);border:2px solid var(--primary);color:var(--primary);}
+
+/* RESULT */
+#sResult{text-align:center;}
+.result-icon{font-size:70px;margin-bottom:16px;}
+.result-title{font-size:24px;font-weight:700;margin-bottom:8px;}
+.result-correct{font-size:16px;color:#10b981;margin-bottom:6px;}
+.result-score{font-size:44px;font-weight:700;color:var(--primary);margin-bottom:6px;}
+.result-rank{font-size:15px;color:var(--muted);margin-bottom:20px;}
+.score-change{font-size:18px;color:#10b981;font-weight:700;margin-bottom:16px;}
+
+/* FINAL */
+#sFinal{text-align:center;}
+.final-trophy{font-size:80px;margin-bottom:16px;}
+.final-rank{font-size:52px;font-weight:700;color:var(--primary);margin-bottom:8px;}
+.final-name{font-size:22px;font-weight:700;margin-bottom:6px;}
+.final-score{font-size:36px;color:var(--primary);font-weight:700;margin-bottom:20px;}
+.ranking-list{text-align:left;}
+.rank-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,.05);border-radius:10px;margin-bottom:8px;}
+.rank-num{width:32px;font-weight:700;color:var(--primary);}
+.rank-name{flex:1;font-weight:600;}
+.rank-score{color:var(--primary);font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- JOIN -->
+<div class="screen active" id="sJoin">
+  <div class="logo">🔔</div>
+  <h1>Алтан Хонх</h1>
+  <p class="sub">Тэмцээнд нэвтрэх</p>
+  <div class="fg">
+    <label>PIN код</label>
+    <input id="pinInput" type="number" placeholder="0000" maxlength="4" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
+  </div>
+  <div class="fg">
+    <label>Таны нэр</label>
+    <input id="nameInput" type="text" placeholder="Нэрээ оруулна уу" style="letter-spacing:0;" onkeydown="if(event.key==='Enter')joinGame()">
+  </div>
+  <div class="fg">
+    <label>Багийн нэр (заавал биш)</label>
+    <input id="teamInput" type="text" placeholder="Багийн нэр" style="letter-spacing:0;" onkeydown="if(event.key==='Enter')joinGame()">
+  </div>
+  <button class="btn-gold" onclick="joinGame()">Нэвтрэх →</button>
+  <div class="err" id="joinErr"></div>
+</div>
+
+<!-- WAITING -->
+<div class="screen" id="sWaiting">
+  <div class="avatar" id="waitAvatar">😊</div>
+  <div class="player-name" id="waitName"></div>
+  <div class="player-team" id="waitTeam"></div>
+  <div class="waiting-anim">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <div class="waiting-text">Тэмцээн эхлэхийг хүлээж байна...</div>
+  <div class="players-count" id="waitCount">0</div>
+  <div class="players-label">оролцогч нэвтэрсэн</div>
+</div>
+
+<!-- QUESTION -->
+<div class="screen" id="sQuestion">
+  <div class="q-info">
+    <div class="q-num" id="qNum">1/10</div>
+    <div class="q-timer-sm" id="qTimerSm">20</div>
+    <div class="q-pts" id="qPts">200 оноо</div>
+  </div>
+  <div class="q-text-sm" id="qTextSm"></div>
+  <div class="options" id="optBtns"></div>
+  <div id="answeredMsg"></div>
+</div>
+
+<!-- RESULT (per question) -->
+<div class="screen" id="sResult">
+  <div class="result-icon" id="resIcon">✅</div>
+  <div class="result-title" id="resTitle">Зөв хариулт!</div>
+  <div class="result-correct" id="resCorrect"></div>
+  <div class="result-score" id="resScore">0</div>
+  <div class="result-rank" id="resRank"></div>
+  <div class="score-change" id="resChange"></div>
+</div>
+
+<!-- FINAL -->
+<div class="screen" id="sFinal">
+  <div class="final-trophy" id="finalTrophy">🏆</div>
+  <div class="final-rank" id="finalRank">#1</div>
+  <div class="final-name" id="finalName"></div>
+  <div class="final-score" id="finalScore">0 оноо</div>
+  <div class="ranking-list" id="rankingList"></div>
+</div>
+
+<script>
+var DB={questions:[],game:{status:'idle',currentQ:-1,pin:'',players:[],answers:{}},results:[]};
+var myPlayer=null;
+var currentScreen='sJoin';
+var lastQIndex=-1;
+var timerInterval=null;
+var timeLeft=0;
+var hasAnswered=false;
+
+function loadDB(){var d=localStorage.getItem('altankhonkh');if(d)DB=JSON.parse(d);}
+function saveDB(){localStorage.setItem('altankhonkh',JSON.stringify(DB));}
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5);}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  currentScreen=id;
+}
+
+// ===== JOIN =====
+function joinGame(){
+  var pin=document.getElementById('pinInput').value.trim();
+  var name=document.getElementById('nameInput').value.trim();
+  var team=document.getElementById('teamInput').value.trim();
+  var errEl=document.getElementById('joinErr');
+
+  if(!pin||pin.length!==4){errEl.textContent='4 оронтой PIN код оруулна уу!';return;}
+  if(!name){errEl.textContent='Нэрээ оруулна уу!';return;}
+
+  loadDB();
+  if(DB.game.status!=='waiting'){errEl.textContent='Тэмцээн нэвтрэлт хаагдсан байна!';return;}
+  if(DB.game.pin!==pin){errEl.textContent='PIN код буруу байна!';return;}
+  if(DB.game.players.find(function(p){return p.name===name;})){errEl.textContent='Энэ нэр аль хэдийн бүртгэлтэй!';return;}
+
+  myPlayer={id:uid(),name:name,team:team,score:0};
+  DB.game.players.push(myPlayer);
+  saveDB();
+
+  // Save to session
+  sessionStorage.setItem('ak_player',JSON.stringify(myPlayer));
+
+  document.getElementById('waitName').textContent=name;
+  document.getElementById('waitTeam').textContent=team?'Баг: '+team:'';
+  document.getElementById('waitAvatar').textContent=name.charAt(0).toUpperCase()||'😊';
+  showScreen('sWaiting');
+}
+
+// ===== GAME LOOP =====
+function gameLoop(){
+  loadDB();
+  var game=DB.game;
+
+  if(!myPlayer)return;
+
+  // Update player reference
+  var me=game.players.find(function(p){return p.id===myPlayer.id;});
+  if(me)myPlayer=me;
+
+  if(game.status==='waiting'&&currentScreen==='sWaiting'){
+    document.getElementById('waitCount').textContent=game.players.length;
+    return;
+  }
+
+  if(game.status==='playing'){
+    var qIdx=game.currentQ;
+    if(qIdx!==lastQIndex){
+      lastQIndex=qIdx;
+      hasAnswered=false;
+      showQuestion(qIdx);
+    }
+    // Update timer
+    return;
+  }
+
+  if(game.status==='show_answer'&&currentScreen==='sQuestion'){
+    showQuestionResult(game.currentQ);
+    return;
+  }
+
+  if(game.status==='finished'&&currentScreen!=='sFinal'){
+    showFinal();
+    return;
+  }
+}
+
+function showQuestion(idx){
+  var q=DB.questions[idx];
+  if(!q)return;
+  hasAnswered=false;
+  showScreen('sQuestion');
+  clearInterval(timerInterval);
+  timeLeft=q.time;
+
+  document.getElementById('qNum').textContent=(idx+1)+'/'+DB.questions.length;
+  document.getElementById('qPts').textContent=q.points+' оноо';
+  document.getElementById('qTextSm').textContent=q.text;
+  document.getElementById('answeredMsg').innerHTML='';
+
+  var colors={A:'a',B:'b',C:'c',D:'d'};
+  document.getElementById('optBtns').innerHTML=['A','B','C','D'].map(function(o){
+    return '<button class="opt-btn '+colors[o]+'" id="opt'+o+'" onclick="submitAnswer(\''+o+'\')">'+
+      '<div class="opt-letter">'+o+'</div>'+
+      '<div class="opt-text">'+q.options[o]+'</div>'+
+    '</button>';
+  }).join('');
+
+  // Timer
+  var timerEl=document.getElementById('qTimerSm');
+  timerEl.textContent=timeLeft;
+  timerEl.className='q-timer-sm';
+
+  timerInterval=setInterval(function(){
+    timeLeft--;
+    timerEl.textContent=timeLeft;
+    if(timeLeft<=5)timerEl.className='q-timer-sm warn';
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      if(!hasAnswered){
+        disableOptions();
+        document.getElementById('answeredMsg').innerHTML='<div class="answered-msg wait">⏱ Хугацаа дууслаа!</div>';
+      }
+    }
+  },1000);
+}
+
+function submitAnswer(opt){
+  if(hasAnswered)return;
+  hasAnswered=true;
+  disableOptions();
+
+  loadDB();
+  var qIdx=DB.game.currentQ;
+  if(!DB.game.answers[qIdx])DB.game.answers[qIdx]={};
+  DB.game.answers[qIdx][myPlayer.id]={answer:opt,time:timeLeft};
+  saveDB();
+
+  document.getElementById('opt'+opt).classList.add('selected');
+  document.getElementById('answeredMsg').innerHTML='<div class="answered-msg ok">✅ Хариулт илгээгдлээ! Хүлээж байна...</div>';
+}
+
+function disableOptions(){
+  ['A','B','C','D'].forEach(function(o){
+    var btn=document.getElementById('opt'+o);
+    if(btn)btn.disabled=true;
+  });
+}
+
+function showQuestionResult(idx){
+  var q=DB.questions[idx];
+  if(!q)return;
+  clearInterval(timerInterval);
+
+  loadDB();
+  var answers=DB.game.answers[idx]||{};
+  var myAns=answers[myPlayer.id];
+  var isCorrect=myAns&&myAns.answer===q.correct;
+
+  // Update score
+  var me=DB.game.players.find(function(p){return p.id===myPlayer.id;});
+  if(me)myPlayer=me;
+
+  showScreen('sResult');
+  document.getElementById('resIcon').textContent=isCorrect?'🎉':'😔';
+  document.getElementById('resTitle').textContent=isCorrect?'Зөв хариулт!':'Буруу хариулт!';
+  document.getElementById('resTitle').style.color=isCorrect?'#10b981':'#ef4444';
+  document.getElementById('resCorrect').textContent='Зөв хариулт: '+q.correct+' — '+q.options[q.correct];
+  document.getElementById('resScore').textContent=(myPlayer.score||0)+' оноо';
+  document.getElementById('resChange').textContent=isCorrect?'+'+q.points+' оноо олсон!':'0 оноо';
+  document.getElementById('resChange').style.color=isCorrect?'#10b981':'#ef4444';
+
+  // Rank
+  var sorted=DB.game.players.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var rank=sorted.findIndex(function(p){return p.id===myPlayer.id;})+1;
+  document.getElementById('resRank').textContent=rank+'-р байранд байна ('+DB.game.players.length+' оролцогчоос)';
+}
+
+function showFinal(){
+  showScreen('sFinal');
+  loadDB();
+  var sorted=(DB.results.length?DB.results:DB.game.players).slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var rank=sorted.findIndex(function(p){return p.id===myPlayer.id;})+1;
+  var medals=['🥇','🥈','🥉'];
+
+  document.getElementById('finalTrophy').textContent=medals[rank-1]||'🏅';
+  document.getElementById('finalRank').textContent='#'+rank;
+  document.getElementById('finalName').textContent=myPlayer.name;
+  document.getElementById('finalScore').textContent=(myPlayer.score||0)+' оноо';
+
+  document.getElementById('rankingList').innerHTML=sorted.map(function(p,i){
+    return '<div class="rank-item" style="'+(p.id===myPlayer.id?'border:2px solid #f59e0b;':'')+'">' +
+      '<div class="rank-num">'+(medals[i]||i+1)+'</div>'+
+      '<div class="rank-name">'+p.name+(p.team?' <small style="color:#94a3b8;">('+p.team+')</small>':'')+'</div>'+
+      '<div class="rank-score">'+(p.score||0)+'</div></div>';
+  }).join('');
+}
+
+// Restore session
+var savedPlayer=sessionStorage.getItem('ak_player');
+if(savedPlayer){
+  try{
+    myPlayer=JSON.parse(savedPlayer);
+    loadDB();
+    if(DB.game.status==='waiting'){showScreen('sWaiting');}
+    else if(DB.game.status==='playing'||DB.game.status==='show_answer'){lastQIndex=-1;}
+    else if(DB.game.status==='finished'){showFinal();}
+  }catch(e){}
+}
+
+// Game loop
+setInterval(gameLoop,1000);
+gameLoop();
+</script>
+</body>
+</html>
