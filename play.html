@@ -186,7 +186,6 @@ function joinGame(){
   if(!name){errEl.textContent='Нэрээ оруулна уу!';return;}
 
   loadDB();
-  if(DB.game.status!=='waiting'){errEl.textContent='Тэмцээн нэвтрэлт хаагдсан байна!';return;}
   if(DB.game.pin!==pin){errEl.textContent='PIN код буруу байна!';return;}
   if(DB.game.players.find(function(p){return p.name===name;})){errEl.textContent='Энэ нэр аль хэдийн бүртгэлтэй!';return;}
 
